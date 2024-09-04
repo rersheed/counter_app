@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CounterScreen extends StatefulWidget {
   const CounterScreen({super.key});
@@ -9,7 +9,15 @@ class CounterScreen extends StatefulWidget {
 }
 
 class _CounterScreenState extends State<CounterScreen> {
-  int number = 0;
+  int? number = 0;
+  late SharedPreferences prefs;
+
+  @override
+  void initState() async {
+    prefs = await SharedPreferences.getInstance();
+    readNumber();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -112,21 +120,28 @@ class _CounterScreenState extends State<CounterScreen> {
     );
   }
 
-  void add() {
+  void add() async {
     setState(() {
-      number++;
+      number = number! + 1;
     });
+    await prefs.setInt("number", number!);
   }
 
-  void subtract() {
+  void subtract() async {
     setState(() {
-      number--;
+      number = number! - 1;
     });
+    await prefs.setInt("number", number!);
   }
 
-  void reset() {
+  void readNumber() async {
+    number = prefs.getInt("number") ?? 0;
+  }
+
+  void reset() async {
     setState(() {
       number = 0;
     });
+    await prefs.setInt("number", number!);
   }
 }
